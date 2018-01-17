@@ -26,4 +26,4 @@ to the relative path to the data folder.
 
 # install the tensorflow object detection API
 You can find the tensorflow object detection API [here](https://github.com/tensorflow/models/tree/master/research/object_detection), 
-following the installation instruction [here](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/installation.md). 
+follow the installation instruction [here](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/installation.md). 
