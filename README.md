@@ -25,8 +25,8 @@ Note that the image paths contained in the test.yaml files should be modified
 to the relative path to the data folder.
 
 #2. install the tensorflow object detection API
-You can find the tensorflow object detection API [here](https://github.com/tensorflow/models/tree/master/research/object_detection), 
-following the installation instruction [here](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/installation.md). 
+You can find the tensorflow object detection API [here](https://github.com/tensorflow/models/tree/master/research/object_detection),
+and follow the installation instruction [here](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/installation.md). 
 
 #3. create the tfrecord data file
 ```
@@ -80,3 +80,4 @@ python object_detection/export_inference_graph \
 
 #5. test the detection model
 run detection_test.ipynb
+
