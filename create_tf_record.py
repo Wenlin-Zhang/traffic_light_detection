@@ -86,8 +86,8 @@ def read_bosch_dataset(input_yaml):
             xmax = float(box_info['x_max']) / width
             ymin = float(box_info['y_min']) / height
             ymax = float(box_info['y_max']) / height
-            # ignore too small bbox (minmum width: 0.01 * 1280 = 12.8, minimum height: 0.02 * 720 = 14.4)
-            if ymax - ymin < 0.02 or xmax - xmin < 0.01:
+            # ignore too small bbox
+            if ymax - ymin < 0.015 or xmax - xmin < 0.015:
                 continue
             xmins.append(xmin)
             xmaxs.append(xmax)
