@@ -93,7 +93,9 @@ python object_detection/eval.py --logtostderr \
 run `detection_test.ipynb`
 
 # 6. prepare the classifier data
+```
 python prepare_classifier_data.py
+```
 
 # 7. train and evaluate the classifier
 run `train_classifier.ipynb`
