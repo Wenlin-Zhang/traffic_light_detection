@@ -65,19 +65,35 @@ python object_detection/train.py --logtostderr \
 
 #4.4 export the detection model
 ```
-python object_detection/export_inference_graph \
+python object_detection/export_inference_graph.py \
     --input_type image_tensor \
     --pipeline_config_path config/ssd_mobilenet_v1_traffic_lights.config \
-    --trained_checkpoint_prefix train/ssd_mobilenet_v1_traffic_lights/model.ckpt-xxx \
-    --output_directory train/ssd_mobilenet_v1_traffic_lights/export
+    --trained_checkpoint_prefix models/ssd_mobilenet_v1_traffic_lights/model.ckpt-xxx \
+    --output_directory models/ssd_mobilenet_v1_traffic_lights/export
     
-python object_detection/export_inference_graph \
+python object_detection/export_inference_graph.py \
     --input_type image_tensor \
     --pipeline_config_path config/faster_rcnn_resnet101_traffic_lights.config \
-    --trained_checkpoint_prefix train/faster_rcnn_resnet101_traffic_lights/model.ckpt-xxx \
-    --output_directory train/faster_rcnn_resnet101_traffic_lights/export
+    --trained_checkpoint_prefix models/faster_rcnn_resnet101_traffic_lights/model.ckpt-xxx \
+    --output_directory models/faster_rcnn_resnet101_traffic_lights/export
 ```
 
-#5. test the detection model
-run detection_test.ipynb
+#5. evaluate the detection model
+```
+python object_detection/eval.py --logtostderr \
+    --checkpoint_dir=models/faster_rcnn_resnet101_traffic_lights/export \
+    --eval_dir=models/faster_rcnn_resnet101_traffic_lights/eval \
+    --pipeline_config_path=config/faster_rcnn_resnet101_traffic_lights.config
+    
+python object_detection/eval.py --logtostderr \
+    --checkpoint_dir=models/ssd_mobilenet_v1_traffic_lights/export \
+    --eval_dir=models/ssd_mobilenet_v1_traffic_lights/eval \
+    --pipeline_config_path=config/ssd_mobilenet_v1_traffic_lights.config
+```
+run `detection_test.ipynb`
 
+#6. prepare the classifier data
+python prepare_classifier_data.py
+
+#7. train and evaluate the classifier
+run `train_classifier.ipynb`

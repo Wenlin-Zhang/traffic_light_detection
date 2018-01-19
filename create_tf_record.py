@@ -1,6 +1,5 @@
 
 import hashlib
-import logging
 import random
 import cv2
 import os
@@ -81,18 +80,18 @@ def read_bosch_dataset(input_yaml):
             # ignore occluded or no label
             if box_info['occluded'] or box_info['label'] == 'off':
                 continue
-            # calculate the normalized bbox size
-            xmin = float(box_info['x_min']) / width
-            xmax = float(box_info['x_max']) / width
-            ymin = float(box_info['y_min']) / height
-            ymax = float(box_info['y_max']) / height
             # ignore too small bbox
-            if ymax - ymin < 0.015 or xmax - xmin < 0.015:
+            xmin = box_info['x_min']
+            xmax = box_info['x_max']
+            ymin = box_info['y_min']
+            ymax = box_info['y_max']
+            if ymax - ymin < 13 or xmax - xmin < 8:
                 continue
-            xmins.append(xmin)
-            xmaxs.append(xmax)
-            ymins.append(ymin)
-            ymaxs.append(ymax)
+            # calculate the normalized bbox size
+            xmins.append(float(xmin)/width)
+            xmaxs.append(float(xmax)/width)
+            ymins.append(float(ymin)/height)
+            ymaxs.append(float(ymin)/height)
         if len(xmins) == 0:
             continue
 
@@ -152,30 +151,27 @@ def main(_):
     # Read the data
     # label_map_dict = label_map_util.get_label_map_dict(FLAGS.label_map_path)
     bosch_train = read_bosch_dataset(FLAGS.data_dir + "/train.yaml")
-    logging.info('number of bosch training samples: ', len(bosch_train))
+    print('number of bosch training samples: ', len(bosch_train))
     bosch_train_additional = read_bosch_dataset(FLAGS.data_dir + "/additional_train.yaml")
-    logging.info('number of bosch additional training samples: ', len(bosch_train_additional))
+    print('number of bosch additional training samples: ', len(bosch_train_additional))
     test_samples = read_bosch_dataset(FLAGS.data_dir + "/test.yaml")
-    logging.info('number of bosch test samples: ', len(test_samples))
+    print('number of bosch test samples: ', len(test_samples))
    
     # Split the whole training data into training/validation sets
-    bosch_train_whole = bosch_train + bosch_train_additional
-    random.shuffle(bosch_train_whole)
-    num_samples = len(bosch_train_whole)
-    num_train = int(0.9 * num_samples)
-    train_samples = bosch_train_whole[:num_train]
-    val_samples = bosch_train_whole[num_train:]
-    logging.info('split the whole training data to %d training samples and  %d validation samples.',
+    bosch_whole = bosch_train + bosch_train_additional + test_samples
+    random.shuffle(bosch_whole)
+    num_samples = len(bosch_whole)
+    num_train = int(0.85 * num_samples)
+    train_samples = bosch_whole[:num_train]
+    val_samples = bosch_whole[num_train:]
+    print('split the whole training data to %d training samples and  %d validation samples.',
                  len(train_samples), len(val_samples))
 
     # Create the record files
     train_record_fname = os.path.join(FLAGS.output_dir, 'train.record')
     val_record_fname = os.path.join(FLAGS.output_dir, 'val.record')
-    test_record_fname = os.path.join(FLAGS.output_dir, 'test.record')
     create_tf_record(train_record_fname, train_samples)
     create_tf_record(val_record_fname, val_samples)
-    create_tf_record(test_record_fname, test_samples)
-
 #-------------------------------------------------------------------------------
 if __name__ == '__main__':
   tf.app.run()
