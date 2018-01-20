@@ -31,6 +31,8 @@ def extract_bbox_images(input_yaml_list, label_dict):
             if image is None:
                 raise IOError('Could not open image path', image_dict['path'])
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            width = image.shape[1]
+            height = image.shape[0]
             for box in image_dict['boxes']:
                 # ignore occluded or label not in the label map
                 if box['occluded']:
@@ -43,7 +45,7 @@ def extract_bbox_images(input_yaml_list, label_dict):
                 ymin = ir(box['y_min'])
                 xmax = ir(box['x_max'])
                 ymax = ir(box['y_max'])
-                if xmin <= 0 or xmax <= 0 or ymin <= 0 or ymax <= 0 or xmax-xmin<=8 or ymax-ymin<=13:
+                if xmin < 0 or xmax < 0 or ymin < 0 or ymax < 0 or ymax - ymin < 0.01 * height or xmax - xmin < 0.01 * width:
                     continue
                 roi = image[ymin:(ymax+1), xmin:(xmax+1)]
                 (h, w) = roi.shape[:2]
@@ -68,7 +70,8 @@ def summary(labels, label_dict, name):
 if __name__ == '__main__':
     label_dict = {'green':0, 'red':1, 'yellow':2, 'off':3}
 
-    (images, labels) = extract_bbox_images(['data/train.yaml', 'data/test.yaml', 'data/additional_train.yaml'], label_dict)
+    #(images, labels) = extract_bbox_images(['data/train.yaml', 'data/test.yaml', 'data/additional_train.yaml'], label_dict)
+    (images, labels) = extract_bbox_images(['data/train.yaml', 'data/additional_train.yaml'], label_dict)
     #(images, labels) = extract_bbox_images(['data/additional_train.yaml'], label_dict)
     summary(labels, label_dict, 'all')
 

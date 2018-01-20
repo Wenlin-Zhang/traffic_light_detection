@@ -105,6 +105,11 @@ run `train_classifier.ipynb`
  python freeze_graph.py --input_graph=models/classifier/graph.pb \
     --input_checkpoint=models/classifier/model.ckpt \
     --input_binary=true \
-    --output_graph=models/classifier/export/frozen_graph.pb \
+    --output_graph=models/classifier/frozen_graph.pb \
     --output_node_names=prediction
- ```
+```
+
+# 9. test the tl_classifier
+```
+ python test_tl_classifier.py input outpu
+```
