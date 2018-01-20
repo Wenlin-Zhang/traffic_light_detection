@@ -85,7 +85,7 @@ def read_bosch_dataset(input_yaml):
             xmax = box_info['x_max']
             ymin = box_info['y_min']
             ymax = box_info['y_max']
-            if ymax - ymin < 13 or xmax - xmin < 8:
+            if ymin < 0 or ymax < 0 or xmin < 0 or xmax < 0 or ymax - ymin < 0.01 * height or xmax - xmin < 0.01 * width:
                 continue
             # calculate the normalized bbox size
             xmins.append(float(xmin)/width)
@@ -158,7 +158,7 @@ def main(_):
     print('number of bosch test samples: ', len(test_samples))
    
     # Split the whole training data into training/validation sets
-    bosch_whole = bosch_train + bosch_train_additional + test_samples
+    bosch_whole = bosch_train + bosch_train_additional
     random.shuffle(bosch_whole)
     num_samples = len(bosch_whole)
     num_train = int(0.85 * num_samples)
@@ -170,8 +170,10 @@ def main(_):
     # Create the record files
     train_record_fname = os.path.join(FLAGS.output_dir, 'train.record')
     val_record_fname = os.path.join(FLAGS.output_dir, 'val.record')
+    test_record_fname = os.path.join(FLAGS.output_dir, 'test.record')
     create_tf_record(train_record_fname, train_samples)
     create_tf_record(val_record_fname, val_samples)
+    create_tf_record(test_record_fname, test_samples)
 #-------------------------------------------------------------------------------
 if __name__ == '__main__':
   tf.app.run()
