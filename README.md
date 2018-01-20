@@ -111,5 +111,5 @@ run `train_classifier.ipynb`
 
 # 9. test the tl_classifier
 ```
- python test_tl_classifier.py input outpu
+ python test_tl_classifier.py input output
 ```
