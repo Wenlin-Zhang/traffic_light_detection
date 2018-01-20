@@ -99,3 +99,12 @@ python prepare_classifier_data.py
 
 # 7. train and evaluate the classifier
 run `train_classifier.ipynb`
+
+# 8. export the classifier model
+```
+ python freeze_graph.py --input_graph=models/classifier/graph.pb \
+    --input_checkpoint=models/classifier/model.ckpt \
+    --input_binary=true \
+    --output_graph=models/classifier/export/frozen_graph.pb \
+    --output_node_names=prediction
+ ```
