@@ -8,13 +8,14 @@ import tensorflow as tf
 from object_detection.utils import label_map_util
 from object_detection.utils import dataset_util
 from tqdm import tqdm
+from glob import glob
 from read_label_file import get_all_labels
 
 # Set the app flags up
 flags = tf.app.flags
 flags.DEFINE_string('data_dir', 'data', 'Root directory to traffic lights dataset.')
 flags.DEFINE_string('output_dir', 'data', 'Path to directory to output TFRecords.')
-flags.DEFINE_string('label_map_path', 'traffic_lights_label_map.pbtxt', 'Path to label map proto')
+flags.DEFINE_string('label_map_path', 'config/traffic_lights_label_map.pbtxt', 'Path to label map proto')
 FLAGS = flags.FLAGS
 
 def read_bosch_dataset(input_yaml):
@@ -110,6 +111,55 @@ def read_bosch_dataset(input_yaml):
 
     return samples
 
+def read_udacity_dataset(image_folder):
+    image_files = glob(image_folder + '/*.png')
+    samples = []
+    for image_fn in tqdm(image_files, desc='udacity', unit='samples'):
+        if not os.path.exists(image_fn):
+            continue
+        # get the label file path
+        label_fn = os.path.splitext(image_fn)[0] + ".txt"
+        if not os.path.exists(label_fn):
+            continue
+
+        # read the label file, obtain box info
+        with open(label_fn, 'r') as f:
+            boxes_info = f.readlines()[1:]
+        boxes_info = list(map(lambda x: x.split(), boxes_info))
+
+        # read the image file
+        image = cv2.imread(image_fn)
+        width = image.shape[1]
+        height = image.shape[0]
+ 
+        # decode the bound box info
+        xmins = []
+        ymins = []
+        xmaxs = []
+        ymaxs = []
+        for box_info in boxes_info:
+            xmins.append(float(box_info[0]) / width)
+            xmaxs.append(float(box_info[2]) / width)
+            ymins.append(float(box_info[1]) / height)
+            ymaxs.append(float(box_info[3]) / height)
+        if len(xmins) == 0:
+            continue
+        
+        # construct the sample
+        sample = {
+            'filename': image_fn,
+            'format': 'PNG',
+            'width': width,
+            'height': height,
+            'xmins': xmins,
+            'xmaxs': xmaxs,
+            'ymins': ymins,
+            'ymaxs': ymaxs,
+        }
+        samples.append(sample)
+
+    return samples
+
 # convert a sample to tf example
 def sample_to_tf_example(sample):
 
@@ -148,32 +198,43 @@ def create_tf_record(output_filename, samples):
 
 #-------------------------------------------------------------------------------
 def main(_):
-    # Read the data
-    # label_map_dict = label_map_util.get_label_map_dict(FLAGS.label_map_path)
+    # read the bosch data
+    label_map_dict = label_map_util.get_label_map_dict(FLAGS.label_map_path)
     bosch_train = read_bosch_dataset(FLAGS.data_dir + "/train.yaml")
     print('number of bosch training samples: ', len(bosch_train))
-    bosch_train_additional = read_bosch_dataset(FLAGS.data_dir + "/additional_train.yaml")
-    print('number of bosch additional training samples: ', len(bosch_train_additional))
-    test_samples = read_bosch_dataset(FLAGS.data_dir + "/test.yaml")
-    print('number of bosch test samples: ', len(test_samples))
-   
+    #bosch_train_additional = read_bosch_dataset(FLAGS.data_dir + "/additional_train.yaml")
+    #print('number of bosch additional training samples: ', len(bosch_train_additional))
+    #test_samples = read_bosch_dataset(FLAGS.data_dir + "/test.yaml")
+    #print('number of bosch test samples: ', len(test_samples))
+    # read the udacity data
+    udacity_samples = []
+    for subdir in ["red", "green", "yellow", "unknown"]:
+        udacity_samples = udacity_samples + read_udacity_dataset(os.path.join(FLAGS.data_dir, "udacity", subdir))
+    print('number of udacity samples: ', len(udacity_samples))
+
     # Split the whole training data into training/validation sets
-    bosch_whole = bosch_train + bosch_train_additional
-    random.shuffle(bosch_whole)
-    num_samples = len(bosch_whole)
-    num_train = int(0.85 * num_samples)
-    train_samples = bosch_whole[:num_train]
-    val_samples = bosch_whole[num_train:]
-    print('split the whole training data to %d training samples and  %d validation samples.',
-                 len(train_samples), len(val_samples))
+    train_set = bosch_train + udacity_samples
+    random.shuffle(train_set)
+    train_record_fname = os.path.join(FLAGS.output_dir, 'train.record')
+    create_tf_record(train_record_fname, train_set)
+
+    # Split the whole training data into training/validation sets
+    # bosch_whole = bosch_train + bosch_train_additional
+    # random.shuffle(bosch_whole)
+    #num_samples = len(bosch_whole)
+    #num_train = int(0.9 * num_samples)
+    #train_samples = bosch_whole[:num_train]
+    #val_samples = bosch_whole[num_train:]
+    #print('split the whole training data to %d training samples and  %d validation samples.',
+    #             len(train_samples), len(val_samples))
 
     # Create the record files
-    train_record_fname = os.path.join(FLAGS.output_dir, 'train.record')
-    val_record_fname = os.path.join(FLAGS.output_dir, 'val.record')
-    test_record_fname = os.path.join(FLAGS.output_dir, 'test.record')
-    create_tf_record(train_record_fname, train_samples)
-    create_tf_record(val_record_fname, val_samples)
-    create_tf_record(test_record_fname, test_samples)
+    #train_record_fname = os.path.join(FLAGS.output_dir, 'train.record')
+    #val_record_fname = os.path.join(FLAGS.output_dir, 'val.record')
+    #test_record_fname = os.path.join(FLAGS.output_dir, 'test.record')
+    #create_tf_record(train_record_fname, train_samples)
+    #create_tf_record(val_record_fname, val_samples)
+    #create_tf_record(test_record_fname, test_samples)
 #-------------------------------------------------------------------------------
 if __name__ == '__main__':
   tf.app.run()

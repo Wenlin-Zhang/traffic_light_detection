@@ -16,10 +16,10 @@ light_labels = {
     }
 
 light_colors = {
-    TrafficLight.UNKNOWN: ( 70,  70,  70),
-    TrafficLight.GREEN: ( 52, 151,  52),
-    TrafficLight.YELLOW: (  0, 220, 220),
-    TrafficLight.RED: ( 60,  20, 220)}
+    TrafficLight.UNKNOWN: (70,  70,  70),
+    TrafficLight.GREEN: ( 0, 255,  0),
+    TrafficLight.YELLOW: (255, 225, 0),
+    TrafficLight.RED: ( 255,  0, 0)}
 
 def draw_box(image, box, color, text):
     ymin, xmin, ymax, xmax = box
@@ -50,17 +50,16 @@ def main():
         out_file = os.path.join(out_dir, os.path.basename(in_file))
         image = cv2.cvtColor(cv2.imread(in_file), cv2.COLOR_BGR2RGB)
         detect_boxes, detect_scores = tl_classifier.run_detector(image)
-        print("{0} lights detect".format(len(detect_boxes)))
+        #print("{0} lights detect".format(len(detect_boxes)))
         if len(detect_boxes) == 0:
             cv2.imwrite(out_file, image)
             continue
         light_states = tl_classifier.run_classifier(image, detect_boxes)
-        #print("{0} lights detect".format(len(light_states)))
         for box, state in zip(detect_boxes, light_states):
             color = light_colors[state]
             label = light_labels[state]
             draw_box(image, box.astype(np.int32), color, label)
-            cv2.imwrite(out_file, image)
+        cv2.imwrite(out_file, image)
 
 if __name__ == '__main__':
     sys.exit(main())

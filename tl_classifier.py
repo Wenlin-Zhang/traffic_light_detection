@@ -57,6 +57,7 @@ class TLClassifier(object):
             classifier_graph_def.ParseFromString(serialized)
         tf.import_graph_def(classifier_graph_def, name='classifier')
         self.classifier_input = self.sess.graph.get_tensor_by_name('classifier/input_image:0')
+        self.classifier_keep_prob = self.sess.graph.get_tensor_by_name('classifier/keep_prob:0')
         self.classifier_prediction = self.sess.graph.get_tensor_by_name('classifier/prediction:0')
 
     def run_detector(self, image):
@@ -70,7 +71,7 @@ class TLClassifier(object):
         boxes = np.squeeze(boxes)
         scores = np.squeeze(scores)
 
-        # get the real box which score is above the deteciton threshold
+        # get the real box which score is above the detection threshold
         detected = []
         for i in range(len(boxes)):
             if scores[i] >= self.detect_threshold:
@@ -80,7 +81,7 @@ class TLClassifier(object):
         boxes = boxes[detected]
         scores = scores[detected]        
 
-        # convert the normalized size to pixes
+        # convert the normalized size to pixels
         h = image.shape[0]
         w = image.shape[1]
         for box in boxes:
@@ -112,14 +113,11 @@ class TLClassifier(object):
         for i in range(num_lights):
             ymin, xmin, ymax, xmax =  detect_boxes[i].astype(np.int32)
             image_light = image[ymin:ymax, xmin:xmax]
-            if (image_light.shape[0] == 0):
-                print(image.shape)
-                print(detect_boxes[i])
-                print(image_light.shape)
             image_light_batch[i, :, :, :] = cv2.resize(image_light, (32, 32))
 
         light_states_index = self.sess.run(self.classifier_prediction,
-                                           feed_dict={self.classifier_input: image_light_batch})
+                                           feed_dict={self.classifier_input: image_light_batch,
+                                                      self.classifier_keep_prob: 1.0})
 
         light_states = map(lambda i: self.light_state_dict[i], light_states_index)
 
