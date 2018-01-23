@@ -213,6 +213,20 @@ def main(_):
     print('number of udacity samples: ', len(udacity_samples))
 
     # Split the whole training data into training/validation sets
+    #samples = bosch_train + udacity_samples
+    #num_samples = len(samples)
+    #num_train = int(0.9 * num_samples)
+    #train_samples = samples[:num_train]
+    #val_samples = samples[num_train:]
+    #print('split the whole training data to %d training samples and  %d validation samples.',
+    #             len(train_samples), len(val_samples))
+    # Create the record files
+    #train_record_fname = os.path.join(FLAGS.output_dir, 'train.record')
+    #val_record_fname = os.path.join(FLAGS.output_dir, 'val.record')
+    #create_tf_record(train_record_fname, train_samples)
+    #create_tf_record(val_record_fname, val_samples)
+
+    # train with all bosch train and udacity samples
     train_set = bosch_train + udacity_samples
     random.shuffle(train_set)
     train_record_fname = os.path.join(FLAGS.output_dir, 'train.record')
@@ -227,7 +241,6 @@ def main(_):
     #val_samples = bosch_whole[num_train:]
     #print('split the whole training data to %d training samples and  %d validation samples.',
     #             len(train_samples), len(val_samples))
-
     # Create the record files
     #train_record_fname = os.path.join(FLAGS.output_dir, 'train.record')
     #val_record_fname = os.path.join(FLAGS.output_dir, 'val.record')

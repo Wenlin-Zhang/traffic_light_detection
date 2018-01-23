@@ -18,8 +18,8 @@ light_labels = {
 light_colors = {
     TrafficLight.UNKNOWN: (70,  70,  70),
     TrafficLight.GREEN: ( 0, 255,  0),
-    TrafficLight.YELLOW: (255, 225, 0),
-    TrafficLight.RED: ( 255,  0, 0)}
+    TrafficLight.YELLOW: (0, 225, 255),
+    TrafficLight.RED: ( 0,  0, 255)}
 
 def draw_box(image, box, color, text):
     ymin, xmin, ymax, xmax = box
@@ -45,7 +45,7 @@ def main():
     
     # perform detection & classification on each image, write the result image to the out dir
     tl_classifier = TLClassifier()
-    tl_classifier.detect_threshold = 0.5
+    tl_classifier.detect_threshold = 0.1
     for in_file in tqdm(files):
         out_file = os.path.join(out_dir, os.path.basename(in_file))
         image = cv2.cvtColor(cv2.imread(in_file), cv2.COLOR_BGR2RGB)
