@@ -79,7 +79,14 @@ def read_bosch_dataset(input_yaml):
         ymaxs = []
         for box_info in record['boxes']:
             # ignore occluded or no label
-            if box_info['occluded'] or box_info['label'] == 'off':
+            if box_info['occluded']:
+                continue
+            good = False
+            # only use Red, Green and Yellow labels
+            for target_label in ["Red", "Green", "Yellow"]:
+                if box_info['label'] == target_label:
+                    good = True
+            if good != True:
                 continue
             # ignore too small bbox
             xmin = box_info['x_min']
@@ -202,8 +209,8 @@ def main(_):
     label_map_dict = label_map_util.get_label_map_dict(FLAGS.label_map_path)
     bosch_train = read_bosch_dataset(FLAGS.data_dir + "/train.yaml")
     print('number of bosch training samples: ', len(bosch_train))
-    #bosch_train_additional = read_bosch_dataset(FLAGS.data_dir + "/additional_train.yaml")
-    #print('number of bosch additional training samples: ', len(bosch_train_additional))
+    bosch_train_additional = read_bosch_dataset(FLAGS.data_dir + "/additional_train.yaml")
+    print('number of bosch additional training samples: ', len(bosch_train_additional))
     #test_samples = read_bosch_dataset(FLAGS.data_dir + "/test.yaml")
     #print('number of bosch test samples: ', len(test_samples))
     # read the udacity data
@@ -213,13 +220,12 @@ def main(_):
     print('number of udacity samples: ', len(udacity_samples))
 
     # Split the whole training data into training/validation sets
-    #samples = bosch_train + udacity_samples
+    #samples = bosch_train + bosch_train_additional + udacity_samples
     #num_samples = len(samples)
-    #num_train = int(0.9 * num_samples)
+    #num_train = int(0.85 * num_samples)
     #train_samples = samples[:num_train]
     #val_samples = samples[num_train:]
-    #print('split the whole training data to %d training samples and  %d validation samples.',
-    #             len(train_samples), len(val_samples))
+    #print('split the whole training data to %d training samples and %d validation samples.' % (len(train_samples), len(val_samples)))
     # Create the record files
     #train_record_fname = os.path.join(FLAGS.output_dir, 'train.record')
     #val_record_fname = os.path.join(FLAGS.output_dir, 'val.record')
@@ -227,7 +233,7 @@ def main(_):
     #create_tf_record(val_record_fname, val_samples)
 
     # train with all bosch train and udacity samples
-    train_set = bosch_train + udacity_samples
+    train_set = bosch_train + bosch_train_additional + udacity_samples
     random.shuffle(train_set)
     train_record_fname = os.path.join(FLAGS.output_dir, 'train.record')
     create_tf_record(train_record_fname, train_set)

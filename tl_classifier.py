@@ -43,7 +43,9 @@ class TLClassifier(object):
     def load_detector(self):
         detector_graph_def = tf.GraphDef()
         #with open('models/ssd_mobilenet_v1_traffic_lights/frozen_inference_graph.pb', 'rb') as f:
-        with open('models/faster_rcnn_resnet101_traffic_lights/frozen_inference_graph.pb', 'rb') as f:
+        #with open('models/faster_rcnn_resnet101_traffic_lights/frozen_inference_graph.pb', 'rb') as f:
+        #with open('models/faster_rcnn_inception_v2_traffic_lights/frozen_inference_graph.pb', 'rb') as f:
+        with open('models/faster_rcnn_resnet50_traffic_lights/frozen_inference_graph.pb', 'rb') as f:
             serialized = f.read()
             detector_graph_def.ParseFromString(serialized)
         tf.import_graph_def(detector_graph_def, name='detector')

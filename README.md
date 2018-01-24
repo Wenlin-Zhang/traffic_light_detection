@@ -68,14 +68,21 @@ python object_detection/train.py --logtostderr \
 python object_detection/export_inference_graph.py \
     --input_type image_tensor \
     --pipeline_config_path config/ssd_mobilenet_v1_traffic_lights.config \
-    --trained_checkpoint_prefix models/ssd_mobilenet_v1_traffic_lights/model.ckpt-xxx \
+    --trained_checkpoint_prefix models/ssd_mobilenet_v1_traffic_lights/model.ckpt-30727 \
     --output_directory models/ssd_mobilenet_v1_traffic_lights/export
     
 python object_detection/export_inference_graph.py \
     --input_type image_tensor \
     --pipeline_config_path config/faster_rcnn_resnet101_traffic_lights.config \
-    --trained_checkpoint_prefix models/faster_rcnn_resnet101_traffic_lights/model.ckpt-xxx \
+    --trained_checkpoint_prefix models/faster_rcnn_resnet101_traffic_lights/model.ckpt-25445 \
     --output_directory models/faster_rcnn_resnet101_traffic_lights/export
+    
+python object_detection/export_inference_graph.py \
+    --input_type image_tensor \
+    --pipeline_config_path config/faster_rcnn_inception_v2_traffic_lights.config \
+    --trained_checkpoint_prefix models/faster_rcnn_inception_v2_traffic_lights/model.ckpt-28506 \
+    --output_directory models/faster_rcnn_inception_v2_traffic_lights/export
+    
 ```
 
 # 5. evaluate the detection model

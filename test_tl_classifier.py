@@ -40,13 +40,16 @@ def main():
     in_dir = sys.argv[1]
     out_dir = sys.argv[2]
 
+    if not os.path.exists(out_dir):
+      os.makedirs(out_dir)
+
     # get test images
     files = glob(in_dir + "/*.png")
     
     # perform detection & classification on each image, write the result image to the out dir
     tl_classifier = TLClassifier()
-    tl_classifier.detect_threshold = 0.1
-    for in_file in tqdm(files):
+    tl_classifier.detect_threshold = 0.5
+    for in_file in tqdm(files, desc='processing ' + in_dir, unit='samples'):
         out_file = os.path.join(out_dir, os.path.basename(in_file))
         image = cv2.cvtColor(cv2.imread(in_file), cv2.COLOR_BGR2RGB)
         detect_boxes, detect_scores = tl_classifier.run_detector(image)
@@ -55,10 +58,10 @@ def main():
             cv2.imwrite(out_file, image)
             continue
         light_states = tl_classifier.run_classifier(image, detect_boxes)
-        for box, state in zip(detect_boxes, light_states):
+        for box, state, score in zip(detect_boxes, light_states, detect_scores):
             color = light_colors[state]
             label = light_labels[state]
-            draw_box(image, box.astype(np.int32), color, label)
+            draw_box(image, box.astype(np.int32), color, label + " %.2f" % score)
         cv2.imwrite(out_file, image)
 
 if __name__ == '__main__':
