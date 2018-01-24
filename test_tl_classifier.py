@@ -44,11 +44,11 @@ def main():
       os.makedirs(out_dir)
 
     # get test images
-    files = glob(in_dir + "/*.png")
+    files = glob(in_dir + "/*.jpg")
     
     # perform detection & classification on each image, write the result image to the out dir
     tl_classifier = TLClassifier()
-    tl_classifier.detect_threshold = 0.5
+    tl_classifier.detect_threshold = 0.3
     for in_file in tqdm(files, desc='processing ' + in_dir, unit='samples'):
         out_file = os.path.join(out_dir, os.path.basename(in_file))
         image = cv2.cvtColor(cv2.imread(in_file), cv2.COLOR_BGR2RGB)
