@@ -99,7 +99,7 @@ def read_bosch_dataset(input_yaml):
             xmins.append(float(xmin)/width)
             xmaxs.append(float(xmax)/width)
             ymins.append(float(ymin)/height)
-            ymaxs.append(float(ymin)/height)
+            ymaxs.append(float(ymax)/height)
         if len(xmins) == 0:
             continue
 
