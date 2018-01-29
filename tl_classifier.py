@@ -33,10 +33,10 @@ class TLClassifier(object):
         detect_boxes, detect_scores = self.run_detector(image)
         if len(detect_boxes) == 0:
             return TrafficLight.UNKNOWN
-        
-        light_states = self.run_classifier(image, detect_boxes)
-
-        # TODO how to process multiple lights?
+ 
+        # get the max score index
+        index = np.argmax(detect_scores)
+        light_states = self.run_classifier(image, [detect_boxes[index]])
 
         return light_states[0]
 
@@ -124,4 +124,4 @@ class TLClassifier(object):
 
         light_states = map(lambda i: self.light_state_dict[i], light_states_index)
 
-        return light_states
+        return list(light_states)
